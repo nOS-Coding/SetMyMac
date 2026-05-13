@@ -153,7 +153,7 @@ Everything in one pass. All dev tools, all selection screens, all installables.
 
 ---
 
-##!IMPORTANT!
+### !IMPORTANT!
 
 - All downloads come from official sources. App Store titles (Xcode, Pixelmator Pro, Delta, GarageBand, Logic Pro, Ulysses) are installed via the `mas` CLI and require you to be signed into the Mac App Store.
 - The app does not phone home, collect telemetry, or contact any server other than the download URLs listed in AppCatalog.swift.
