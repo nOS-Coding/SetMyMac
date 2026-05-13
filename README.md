@@ -1,4 +1,5 @@
 <img width="100" height="100" alt="MAC Background Removed" src="https://github.com/user-attachments/assets/6507f732-2581-4fe1-bb2f-87ae5966e66f" />
+
 # MacSetup
 
 Got a Mac, installed MacOS and ready to go? Not quite... You need to install apps, packages, tools and need to spend hours on this. Have you ever thought: Why not automate? Here it is, a full-auto setup assistant for your Mac.
