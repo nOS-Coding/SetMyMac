@@ -1,6 +1,6 @@
 <img width="100" height="100" alt="MAC Background Removed" src="https://github.com/user-attachments/assets/6507f732-2581-4fe1-bb2f-87ae5966e66f" />
 
-# MacSetup
+# SetMyMac
 
 Got a Mac, installed MacOS and ready to go? Not quite... You need to install apps, packages, tools and need to spend hours on this. Have you ever thought: Why not automate? Here it is, a full-auto setup assistant for your Mac.
 
@@ -32,7 +32,7 @@ Design tools and creative suites. Affinity Suite, Canva, Pixelmator Pro, and Ado
 A productivity-focused setup for workplace and administrative use. Browser, office suite, and communication tools.
 
 ### Developer
-A full development toolchain -- Xcode CLT, Homebrew, Git, Node.js, Python 3.12, OpenJDK, core CLI tools, Oh My Zsh, Docker, and Rectangle -- followed by IDE selection and standard picks.
+A full development toolchain -- Xcode CLT, Homebrew, Git, Node.js, Python 3.14, OpenJDK, core CLI tools, Oh My Zsh -- followed by IDE selection and standard picks.
 
 ### General User
 A clean, simple setup for everyday browsing, communication, and AI assistance.
@@ -107,7 +107,7 @@ Everything in one pass. All dev tools, all selection screens, all installables.
 - CrossOver
 - Whiskey
 - PlayCover
-- MetalHUD overlay (defaults write)
+- MetalHUD overlay 
 
 ### Emulators
 - Ryujinx (Nintendo Switch)
