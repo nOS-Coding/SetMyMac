@@ -135,6 +135,25 @@ Everything in one pass. All dev tools, all selection screens, all installables.
 - Core CLI tools (wget, curl, tree, htop, jq, gh, mas) 
 - Oh My Zsh
 
+### Tools
+
+- Free Download Manager
+- Balena Etcher
+- ApplePi-Baker
+- The Unarchiver
+- AppCleaner
+- IINA
+- HandBrake
+- OBS Studio
+- Keka
+- Rectangle
+- Stats
+- Hidden Bar
+- Maccy
+- AltTab
+- MonitorControl
+- WinDiskWriter
+
 ---
 
 ## Screenshots
