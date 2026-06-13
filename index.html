@@ -5,222 +5,453 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SetMyMac — Automated macOS Setup Assistant</title>
   <meta name="description" content="A first-login macOS setup app that automates installing all your apps, dev tools, and packages in one pass." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --accent: #6366f1;
-      --accent-dark: #4f46e5;
-      --bg: #0f0f1a;
-      --surface: #1a1a2e;
-      --surface-2: #222240;
-      --text: #e2e8f0;
-      --text-dim: #94a3b8;
-      --border: #2d2d50;
-    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #060608;
+      color: #f0efef;
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    .bg-glow {
+      position: fixed;
+      top: -40vh;
+      left: 50%;
+      translate: -50% 0;
+      width: 100vw;
+      height: 80vh;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.035);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+    }
+
+    /* Header */
     header {
-      padding: 60px 0 40px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      margin-top: 16px;
+      background: rgba(255,255,255,0.035);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
     }
-    header img { width: 80px; height: 80px; border-radius: 20px; margin-bottom: 16px; }
-    h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -0.02em; }
-    h1 span { color: var(--accent); }
-    .subtitle {
-      font-size: 1.15rem; color: var(--text-dim);
-      max-width: 600px; margin: 12px auto 0;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 14px 36px;
-      background: var(--accent);
-      color: #fff;
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #f0efef;
       font-weight: 600;
       font-size: 1rem;
-      border-radius: 12px;
+    }
+    .header-logo img { width: 28px; height: 28px; border-radius: 7px; }
+    header nav { display: flex; align-items: center; gap: 6px; }
+    header nav a {
+      padding: 6px 14px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.6);
       text-decoration: none;
-      transition: background .2s;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all .15s;
     }
-    .btn:hover { background: var(--accent-dark); }
-    section { padding: 48px 0; border-bottom: 1px solid var(--border); }
-    h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 20px; }
-    h2 span { color: var(--accent); }
-    p { color: var(--text-dim); margin-bottom: 12px; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin: 20px 0;
+    header nav a:hover { color: #f0efef; background: rgba(255,255,255,0.06); }
+    .btn-gh {
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      color: #f0efef;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s;
     }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
+    .btn-gh:hover { background: rgba(255,255,255,0.1); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
     }
-    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
-    .card ul { list-style: none; font-size: 0.9rem; color: var(--text-dim); }
-    .card ul li::before { content: "› "; color: var(--accent); font-weight: 700; }
-    .steps {
-      list-style: none;
-      counter-reset: step;
+    .hero img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
     }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .hero h1 span { color: rgba(255,255,255,0.35); }
+    .hero p {
+      max-width: 580px;
+      margin: 14px auto 0;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .btn-primary {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f0efef;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-primary:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    /* Sections */
+    section { padding: 56px 0; }
+    section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+    h2 span { color: rgba(255,255,255,0.35); }
+
+    /* Steps */
+    .steps { list-style: none; }
     .steps li {
-      counter-increment: step;
-      padding: 16px 0 16px 56px;
-      position: relative;
-      color: var(--text-dim);
-      border-bottom: 1px solid var(--border);
-    }
-    .steps li::before {
-      content: counter(step);
-      position: absolute; left: 0; top: 14px;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; color: var(--accent);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
     }
     .steps li:last-child { border: none; }
-    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-    th, td {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
     }
-    th { color: var(--accent); font-weight: 600; }
-    td { color: var(--text-dim); }
+    .step-text { padding-top: 5px; color: rgba(255,255,255,0.55); font-size: 0.95rem; }
+    .step-text strong { color: #f0efef; font-weight: 600; }
+
+    /* Profile Grid */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .profile-card {
+      padding: 18px;
+    }
+    .profile-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #f0efef;
+    }
+    .profile-card ul {
+      list-style: none;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+    }
+    .profile-card ul li { padding: 2px 0; }
+    .profile-card ul li::before { content: "— "; opacity: 0.4; }
+
+    /* App Catalog */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .cat-card {
+      padding: 16px;
+    }
+    .cat-card h3 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 8px;
+    }
+    .cat-card p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    tbody td {
+      padding: 10px 14px;
+      color: rgba(255,255,255,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border: none; }
+    tbody code {
+      font-family: SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+    }
     .tag {
       display: inline-block;
       padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
+      border-radius: 100px;
+      font-size: 0.7rem;
       font-weight: 600;
     }
-    .tag-fixed { background: #065f46; color: #6ee7b7; }
-    .tag-broken { background: #7f1d1d; color: #fca5a5; }
-    .tag-warn { background: #78350f; color: #fcd34d; }
+    .tag-fixed { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.18); }
+
+    /* Screenshots */
+    .screenshot-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .screenshot-grid img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Requirements */
+    .req-list { list-style: none; }
+    .req-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.55);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .req-list li:last-child { border: none; }
+    .req-list li::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+
+    /* Footer */
     footer {
       text-align: center;
-      padding: 40px 0;
-      color: var(--text-dim);
-      font-size: 0.85rem;
+      padding: 40px 0 48px;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.8rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
-    footer a { color: var(--accent); text-decoration: none; }
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      header { padding: 40px 0 24px; }
-      .grid { grid-template-columns: 1fr; }
+    footer a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    footer a:hover { color: #f0efef; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .hero { padding: 48px 0 36px; }
+      header { flex-direction: column; gap: 12px; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .catalog-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <img src="https://github.com/user-attachments/assets/6507f732-2581-4fe1-bb2f-87ae5966e66f" alt="SetMyMac logo" />
-  <h1>SetMy<span>Mac</span></h1>
-  <p class="subtitle">First-login macOS setup, fully automated. Pick a profile, select your apps, and let SetMyMac handle the rest.</p>
-  <a class="btn" href="https://github.com/nOS-Coding/SetMyMac/releases" target="_blank">Download Latest Release</a>
-</header>
+<div class="bg-glow"></div>
 
 <div class="container">
+  <header>
+    <a href="/" class="header-logo">
+      <img src="https://github.com/user-attachments/assets/6507f732-2581-4fe1-bb2f-87ae5966e66f" alt="" />
+      SetMyMac
+    </a>
+    <nav>
+      <a href="https://github.com/nOS-Coding/SetMyMac/releases">Download</a>
+      <a href="https://github.com/nOS-Coding/SetMyMac">GitHub</a>
+    </nav>
+  </header>
 
-<section>
-  <h2><span>How</span> It Works</h2>
-  <ol class="steps">
-    <li>Choose a profile — Writer, Developer, Gamer, Composer, or one of five others.</li>
-    <li>Step through the selection screens. Pick browsers, IDEs, emulators, DAWs, and more.</li>
-    <li>Review your selections and hit <strong>Install</strong>.</li>
-    <li>The app downloads and installs everything, reporting progress in real time.</li>
-    <li>Close the app and start using your machine.</li>
-  </ol>
-  <p style="margin-top: 12px;">The app resets every launch — nothing is persisted between sessions.</p>
-</section>
-
-<section>
-  <h2><span>Profiles</span></h2>
-  <div class="grid">
-    <div class="card"><h3>Writer</h3><ul><li>iA Writer, Ulysses, Living Writer</li><li>Microsoft 365 or LibreOffice</li><li>AI assistants</li></ul></div>
-    <div class="card"><h3>Artist</h3><ul><li>Affinity Suite, Canva</li><li>Pixelmator Pro</li><li>Adobe Creative Cloud</li></ul></div>
-    <div class="card"><h3>Office</h3><ul><li>Browser, office suite</li><li>Communication tools</li><li>AI assistants</li></ul></div>
-    <div class="card"><h3>Developer</h3><ul><li>Xcode CLT, Homebrew, Git</li><li>Node.js, Python, OpenJDK</li><li>IDEs, dev AI tools</li></ul></div>
-    <div class="card"><h3>General User</h3><ul><li>Everyday browsing</li><li>Communication apps</li><li>AI assistance</li></ul></div>
-    <div class="card"><h3>Gamer</h3><ul><li>Steam, CrossOver, Whiskey</li><li>PlayCover, MetalHUD</li><li>Emulators (Ryubing, RPCS3, PCSX2, Delta, DuckStation)</li></ul></div>
-    <div class="card"><h3>Composer</h3><ul><li>GarageBand, Tracktion, LMMS</li><li>Ardour, FL Studio, Logic Pro</li><li>Music production tools</li></ul></div>
-    <div class="card"><h3>All</h3><ul><li>Everything in one pass</li><li>All dev tools, all apps</li><li>Every selection screen</li></ul></div>
+  <div class="hero">
+    <img src="https://github.com/user-attachments/assets/6507f732-2581-4fe1-bb2f-87ae5966e66f" alt="" />
+    <h1><span>SetMy</span>Mac</h1>
+    <p>First-login macOS setup, fully automated. Pick a profile, select your apps, and let SetMyMac handle the rest.</p>
+    <a class="btn-primary" href="https://github.com/nOS-Coding/SetMyMac/releases" target="_blank">Download Latest Release</a>
   </div>
-</section>
 
-<section>
-  <h2><span>App</span> Catalog</h2>
-  <div class="grid">
-    <div class="card"><h3>Browsers</h3><ul><li>Firefox</li><li>Vivaldi</li><li>Brave</li><li>Chrome</li><li>Opera GX</li></ul></div>
-    <div class="card"><h3>Writing</h3><ul><li>iA Writer</li><li>Ulysses</li><li>Living Writer</li></ul></div>
-    <div class="card"><h3>Office</h3><ul><li>Microsoft 365</li><li>LibreOffice</li></ul></div>
-    <div class="card"><h3>AI Assistants</h3><ul><li>Claude</li><li>Gemini</li><li>ChatGPT</li></ul></div>
-    <div class="card"><h3>Design</h3><ul><li>Affinity Suite</li><li>Canva</li><li>Pixelmator Pro</li><li>Adobe CC</li></ul></div>
-    <div class="card"><h3>IDEs</h3><ul><li>VS Code, Xcode</li><li>Cursor, Zed, Nova</li><li>IntelliJ, PyCharm</li><li>Thonny</li></ul></div>
-    <div class="card"><h3>Gaming</h3><ul><li>Steam, CrossOver</li><li>Whiskey, PlayCover</li><li>MetalHUD</li></ul></div>
-    <div class="card"><h3>Emulators</h3><ul><li>Ryubing (Switch)</li><li>RPCS3 (PS3)</li><li>PCSX2 (PS2)</li><li>Delta (multi)</li><li>DuckStation (PS1)</li></ul></div>
-    <div class="card"><h3>DAWs</h3><ul><li>GarageBand</li><li>Tracktion Waveform</li><li>LMMS</li><li>Ardour</li><li>FL Studio</li><li>Logic Pro</li></ul></div>
-    <div class="card"><h3>Dev Toolchain</h3><ul><li>Xcode CLT, Homebrew</li><li>Git, Node.js, Python</li><li>OpenJDK, Oh My Zsh</li><li>CLI tools (wget, curl, htop, jq, gh, mas)</li></ul></div>
-    <div class="card"><h3>Utilities</h3><ul><li>Free Download Manager</li><li>Balena Etcher, Unarchiver</li><li>IINA, HandBrake, OBS</li><li>Rectangle, Stats, Maccy, AltTab</li><li>MonitorControl, WinDiskWriter</li></ul></div>
-  </div>
-</section>
+  <section>
+    <div class="section-label">How It Works</div>
+    <h2>Your Mac, <span>set up in 5 steps</span></h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <span class="step-text">Choose a profile — Writer, Developer, Gamer, Composer, or one of five others.</span>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <span class="step-text">Step through the selection screens. Pick browsers, IDEs, emulators, DAWs, and more.</span>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <span class="step-text">Review your selections and hit <strong>Install</strong>.</span>
+      </li>
+      <li>
+        <span class="step-num">4</span>
+        <span class="step-text">The app downloads and installs everything, reporting progress in real time.</span>
+      </li>
+      <li>
+        <span class="step-num">5</span>
+        <span class="step-text">Close the app and start using your machine.</span>
+      </li>
+    </ol>
+    <p style="margin-top:12px;font-size:0.85rem;color:rgba(255,255,255,0.35)">The app resets every launch — nothing persisted between sessions.</p>
+  </section>
 
-<section>
-  <h2><span>Broken</span> Apps &amp; Fixes</h2>
-  <p>SetMyMac uses a binary-patching approach: the app binary stores app metadata (display name, download URL, Homebrew cask name) in a struct table. "Broken" apps point to a failing URL or outdated cask name, which triggers a <code>setmymac-fallback.sh</code> script that handles the actual installation.</p>
-  <table>
-    <thead><tr><th>App</th><th>Issue</th><th>Fix Strategy</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr><td>PlayCover</td><td>Old cask <code>playcover</code> no longer exists</td><td>Redirected to <code>playcover-community</code></td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>Ryujinx / Ryubing</td><td>Project rebranded; all URLs stale</td><td>Display name, key, URL, and struct entry patched to "Ryubing"; fallback downloads from GitLab</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>FL Studio</td><td>No Homebrew cask</td><td>Fallback downloads DMG directly via redirect</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>DuckStation</td><td>Outdated ZIP URL</td><td>Fallback downloads from GitHub latest release</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>iA Writer</td><td>Only Mac App Store</td><td>Fallback installs via <code>mas install</code></td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>Ardour</td><td>No Homebrew cask, paid app officially</td><td>Fallback scrapes nightly.ardour.org for free demo DMG</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-      <tr><td>RPCS3</td><td>Stale download URL</td><td>Fallback fetches latest ARM64/x64 7z from GitHub releases via API</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
-    </tbody>
-  </table>
-  <p style="margin-top:12px;"><strong>Note:</strong> Binary patches require re-signing with <code>codesign -fs -</code>. The fallback script is at <code>/usr/local/bin/setmymac-fallback.sh</code>.</p>
-</section>
+  <section>
+    <div class="section-label">Profiles</div>
+    <h2>Eight profiles, <span>one for every role</span></h2>
+    <div class="profile-grid">
+      <div class="profile-card glass"><h3>Writer</h3><ul><li>iA Writer, Ulysses, Living Writer</li><li>Microsoft 365 or LibreOffice</li><li>AI assistants</li></ul></div>
+      <div class="profile-card glass"><h3>Artist</h3><ul><li>Affinity Suite, Canva</li><li>Pixelmator Pro</li><li>Adobe Creative Cloud</li></ul></div>
+      <div class="profile-card glass"><h3>Office</h3><ul><li>Browser, office suite</li><li>Communication tools</li><li>AI assistants</li></ul></div>
+      <div class="profile-card glass"><h3>Developer</h3><ul><li>Xcode CLT, Homebrew, Git</li><li>Node.js, Python, OpenJDK</li><li>IDEs, dev AI tools</li></ul></div>
+      <div class="profile-card glass"><h3>General</h3><ul><li>Everyday browsing</li><li>Communication apps</li><li>AI assistance</li></ul></div>
+      <div class="profile-card glass"><h3>Gamer</h3><ul><li>Steam, CrossOver, Whiskey</li><li>PlayCover, MetalHUD</li><li>Emulators</li></ul></div>
+      <div class="profile-card glass"><h3>Composer</h3><ul><li>GarageBand, Tracktion</li><li>LMMS, Ardour, FL Studio</li><li>Logic Pro</li></ul></div>
+      <div class="profile-card glass"><h3>All</h3><ul><li>Everything in one pass</li><li>All selection screens</li><li>All installables</li></ul></div>
+    </div>
+  </section>
 
-<section>
-  <h2><span>Requirements</span></h2>
-  <ul class="steps">
-    <li>macOS 13 Ventura or later</li>
-    <li>Apple Silicon (arm64)</li>
-    <li>Xcode 15+ or Command Line Tools (for building from source)</li>
-  </ul>
-</section>
+  <section>
+    <div class="section-label">App Catalog</div>
+    <h2>Everything <span>you need</span></h2>
+    <div class="catalog-grid">
+      <div class="cat-card glass"><h3>Browsers</h3><p>Firefox · Vivaldi · Brave · Chrome · Opera GX</p></div>
+      <div class="cat-card glass"><h3>Writing</h3><p>iA Writer · Ulysses · Living Writer</p></div>
+      <div class="cat-card glass"><h3>Office</h3><p>Microsoft 365 · LibreOffice</p></div>
+      <div class="cat-card glass"><h3>AI Assistants</h3><p>Claude · Gemini · ChatGPT</p></div>
+      <div class="cat-card glass"><h3>Social</h3><p>WhatsApp · Telegram · Discord · Slack · Zoom · Signal</p></div>
+      <div class="cat-card glass"><h3>Design</h3><p>Affinity Suite · Canva · Pixelmator Pro · Adobe CC</p></div>
+      <div class="cat-card glass"><h3>IDEs</h3><p>VS Code · Xcode · Cursor · Zed · Nova · IntelliJ · PyCharm</p></div>
+      <div class="cat-card glass"><h3>Dev AI</h3><p>Claude Code · Gemini CLI · OpenCode · Goose AI · Ollama</p></div>
+      <div class="cat-card glass"><h3>Gaming</h3><p>Steam · CrossOver · Whiskey · PlayCover · MetalHUD</p></div>
+      <div class="cat-card glass"><h3>Emulators</h3><p>Ryubing · RPCS3 · PCSX2 · Delta · DuckStation</p></div>
+      <div class="cat-card glass"><h3>DAWs</h3><p>GarageBand · Tracktion · LMMS · Ardour · FL Studio · Logic Pro</p></div>
+      <div class="cat-card glass"><h3>Dev Toolchain</h3><p>Xcode CLT · Homebrew · Git · Node.js · Python · OpenJDK · Oh My Zsh</p></div>
+      <div class="cat-card glass"><h3>Utilities</h3><p>Balena Etcher · IINA · HandBrake · OBS · Rectangle · Stats · Maccy · AltTab · MonitorControl</p></div>
+    </div>
+  </section>
 
-<section>
-  <h2><span>Screenshots</span></h2>
-  <div style="display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
-    <img style="width:100%;border-radius:12px;border:1px solid var(--border)" src="https://github.com/user-attachments/assets/2093ec68-9a77-4be8-9d95-fef5118e93f0" alt="Screenshot 1" />
-    <img style="width:100%;border-radius:12px;border:1px solid var(--border)" src="https://github.com/user-attachments/assets/461636c8-25be-4e5e-bca5-8e7d9314441c" alt="Screenshot 2" />
-    <img style="width:100%;border-radius:12px;border:1px solid var(--border)" src="https://github.com/user-attachments/assets/3c8fe5cc-5a3d-4a95-9f7b-53641591e567" alt="Screenshot 3" />
-  </div>
-</section>
+  <section>
+    <div class="section-label">Broken Apps &amp; Fixes</div>
+    <h2>Binary patching <span>made transparent</span></h2>
+    <p style="color:rgba(255,255,255,0.45);font-size:0.9rem;margin-bottom:20px">
+      SetMyMac stores app metadata in a binary struct table. Apps with stale URLs or missing casks trigger a fallback script that handles the actual installation.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>App</th><th>Issue</th><th>Fix</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PlayCover</td><td>Old <code>playcover</code> cask removed</td><td>Redirected to <code>playcover-community</code></td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>Ryujinx → Ryubing</td><td>Project rebranded, all URLs stale</td><td>Binary patched; fallback downloads from GitLab</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>FL Studio</td><td>No Homebrew cask exists</td><td>Fallback downloads DMG directly</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>DuckStation</td><td>Old ZIP URL broken</td><td>Fallback downloads from GitHub latest release</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>iA Writer</td><td>Mac App Store only</td><td>Fallback installs via <code>mas install</code></td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>Ardour</td><td>No cask; paid app</td><td>Fallback scrapes nightly.ardour.org for free demo DMG</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+          <tr><td>RPCS3</td><td>Stale download URL</td><td>Fallback fetches latest 7z via GitHub API</td><td><span class="tag tag-fixed">Fixed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
+  <section>
+    <div class="section-label">Requirements</div>
+    <h2>What <span>you'll need</span></h2>
+    <ul class="req-list">
+      <li>macOS 13 Ventura or later</li>
+      <li>Apple Silicon (arm64)</li>
+      <li>Xcode 15+ or Command Line Tools (for building from source)</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label">Screenshots</div>
+    <h2>See it <span>in action</span></h2>
+    <div class="screenshot-grid">
+      <img src="https://github.com/user-attachments/assets/2093ec68-9a77-4be8-9d95-fef5118e93f0" alt="Screenshot 1" />
+      <img src="https://github.com/user-attachments/assets/461636c8-25be-4e5e-bca5-8e7d9314441c" alt="Screenshot 2" />
+      <img src="https://github.com/user-attachments/assets/3c8fe5cc-5a3d-4a95-9f7b-53641591e567" alt="Screenshot 3" />
+    </div>
+  </section>
+
+  <footer>
+    <p>SetMyMac — MIT License — <a href="https://github.com/nOS-Coding/SetMyMac">GitHub</a></p>
+    <p style="margin-top:6px">All downloads from official sources. No telemetry, no phone-home.</p>
+  </footer>
 </div>
-
-<footer>
-  <div class="container">
-    <p>SetMyMac &bull; MIT License &bull; <a href="https://github.com/nOS-Coding/SetMyMac">GitHub</a></p>
-    <p style="margin-top:8px;font-size:0.8rem">All downloads come from official sources. No telemetry, no phone-home.</p>
-  </div>
-</footer>
 
 </body>
 </html>
